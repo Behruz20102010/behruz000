@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Math Sprint</title><link rel="stylesheet" href="style.css"><script defer src="site.js"></script></head><body>
+<header class="topbar"><div class="brand">Solar <span>Adventure</span></div></header>
+<main class="container"><h2>Math Sprint</h2><p>Solve as many as you can in 60 seconds.</p>
+<p>Time: <span id="t">60</span> — Correct: <span id="c">0</span></p>
+<div id="qbox"></div>
+<input id="ans" autocomplete="off" style="padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);width:120px">
+<button id="submit" class="btn">Submit</button>
+<div style="margin-top:12px"><a class="btn ghost" href="games.html">Back</a></div>
+</main>
+<script>
+let timeLeft=60, correct=0, cur;
+const tEl=document.getElementById('t'), cEl=document.getElementById('c'), qbox=document.getElementById('qbox'), ans=document.getElementById('ans');
+function newQ(){ const a=Math.floor(Math.random()*20)+1, b=Math.floor(Math.random()*20)+1; cur={a,b}; qbox.textContent = a+' + '+b+' = ?'; ans.value=''; ans.focus(); }
+document.getElementById('submit').onclick = ()=>{ if(!cur) return; if(Number(ans.value)===cur.a+cur.b){ correct++; cEl.textContent=correct; } newQ(); }
+const timer=setInterval(()=>{ timeLeft--; tEl.textContent=timeLeft; if(timeLeft<=0){ clearInterval(timer); finish(); } },1000);
+newQ();
+function finish(){ const name = prompt('Name for leaderboard','Player')||'Player'; window.Leaderboard.saveScore('math', name, correct); alert('Done! Correct: '+correct); }
+</script></body></html>

@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Planets</title><link rel="stylesheet" href="style.css"><script defer src="site.js"></script></head><body>
+<header class="topbar"><div class="brand">Solar <span>Adventure</span></div></header>
+<main class="container"><h2>Planets (3D)</h2>
+<p>Interactive spheres powered by three.js (CDN). Rotate with mouse, click a planet to view info.</p>
+<div id="scene" style="width:100%;height:480px;border-radius:12px;overflow:hidden"></div>
+<div id="info" style="margin-top:12px"></div>
+<div style="margin-top:12px"><a class="btn" href="index.html">Home</a></div>
+</main>
+<!-- three.js from CDN -->
+<script src="https://unpkg.com/three@0.156.0/build/three.min.js"></script>
+<script>
+// Basic three.js scene (no textures to keep lightweight)
+const sceneEl = document.getElementById('scene');
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(45, sceneEl.clientWidth/sceneEl.clientHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(sceneEl.clientWidth, sceneEl.clientHeight);
+sceneEl.appendChild(renderer.domElement);
+const light = new THREE.DirectionalLight(0xffffff,1.0); light.position.set(5,10,7); scene.add(light);
+const amb = new THREE.AmbientLight(0x404040,1.2); scene.add(amb);
+const planets = [];
+const data = [
+  {name:'Mercury', color:0x9b8b7a, r:0.6, x:-3},
+  {name:'Venus', color:0xe0c08b, r:0.9, x:-1.5},
+  {name:'Earth', color:0x2a6fbd, r:1.0, x:0},
+  {name:'Mars', color:0xc1440e, r:0.8, x:1.5},
+  {name:'Jupiter', color:0xd9b48c, r:1.8, x:4},
+  {name:'Saturn', color:0xe5d4a6, r:1.6, x:7},
+  {name:'Uranus', color:0x8fe0e6, r:1.2, x:10},
+  {name:'Neptune', color:0x2b65e8, r:1.2, x:13}
+];
+data.forEach(d=>{
+  const geo = new THREE.SphereGeometry(d.r, 32, 32);
+  const mat = new THREE.MeshStandardMaterial({color:d.color, metalness:0.1, roughness:0.8});
+  const m = new THREE.Mesh(geo, mat);
+  m.position.x = d.x;
+  m.userData = d;
+  scene.add(m);
+  planets.push(m);
+});
+cam.position.set(0,2,18);
+function animate(){ requestAnimationFrame(animate); planets.forEach(p=>p.rotation.y += 0.003); renderer.render(scene, cam); }
+animate();
+// simple raycast to click planets
+const ray = new THREE.Raycaster(), mouse=new THREE.Vector2();
+renderer.domElement.addEventListener('click', (e)=>{
+  const r = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - r.left)/r.width)*2 - 1;
+  mouse.y = -((e.clientY - r.top)/r.height)*2 + 1;
+  ray.setFromCamera(mouse, cam);
+  const hits = ray.intersectObjects(planets);
+  if(hits.length) { const p = hits[0].object.userData; document.getElementById('info').innerHTML = '<h3>'+p.name+'</h3><p>Radius factor: '+p.r+'</p>'; }
+});
+</script>
+</body></html>

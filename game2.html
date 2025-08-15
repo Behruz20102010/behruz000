@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Reaction Test</title><link rel="stylesheet" href="style.css"><script defer src="site.js"></script></head><body>
+<header class="topbar"><div class="brand">Solar <span>Adventure</span></div></header>
+<main class="container"><h2>Reaction Test</h2>
+<p id="msg">Wait for green...</p>
+<button id="reactBtn" class="btn">Don't click</button>
+<div style="margin-top:12px"><a class="btn ghost" href="games.html">Back</a></div>
+</main>
+<script>
+const msg=document.getElementById('msg'), rbtn=document.getElementById('reactBtn');
+let start=0, timeout;
+function startRound(){
+  msg.textContent='Get ready...';
+  rbtn.disabled=true;
+  rbtn.style.background='rgba(255,255,255,0.06)';
+  const delay = 1000 + Math.random()*3000;
+  timeout=setTimeout(()=>{ start=Date.now(); rbtn.disabled=false; rbtn.style.background='#67f'; msg.textContent='Click now!'; }, delay);
+}
+rbtn.onclick = ()=>{
+  if(start===0){ // clicked too early
+    clearTimeout(timeout);
+    msg.textContent='Too soon! Restarting...'; start=0; setTimeout(startRound,800); return;
+  }
+  const dt = Date.now()-start; start=0;
+  msg.textContent='Reaction: '+dt+' ms';
+  const name = prompt('Enter name for leaderboard','Player')||'Player';
+  window.Leaderboard.saveScore('reaction', name, Math.max(0, 2000-dt)); // higher is better
+  setTimeout(startRound,800);
+};
+startRound();
+</script></body></html>

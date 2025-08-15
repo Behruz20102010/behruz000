@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Leaderboard</title><link rel="stylesheet" href="style.css"><script defer src="site.js"></script></head><body>
+<header class="topbar"><div class="brand">Solar <span>Adventure</span></div></header>
+<main class="container"><h2>Leaderboard</h2>
+<p>Top scores across games (saved in your browser).</p>
+<select id="filter"><option value="">All</option><option value="clicker">Clicker</option><option value="reaction">Reaction</option><option value="orbit">Orbit</option><option value="math">Math</option></select>
+<button id="clear" class="btn ghost">Clear All</button>
+<div id="list" style="margin-top:12px"></div>
+<div style="margin-top:18px"><a class="btn" href="index.html">Home</a></div>
+</main>
+<script>
+function render(filter){
+  const all = window.Leaderboard.getAll();
+  let list = all;
+  if(filter) list = all.filter(x=>x.gameId===filter);
+  const out = list.map((it,i)=>'<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)"><strong>'+ (i+1) +'. '+ it.name +'</strong> — '+ it.score +' <small style="color:var(--muted)">'+ new Date(it.t).toLocaleString() +'</small></div>').join('') || '<p>No scores yet</p>';
+  document.getElementById('list').innerHTML = out;
+}
+document.getElementById('filter').addEventListener('change', e=>render(e.target.value));
+document.getElementById('clear').addEventListener('click', ()=>{ if(confirm('Clear leaderboard?')){ window.Leaderboard.clear(); render(); } });
+render();
+</script></body></html>

@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Orbit Fly</title><link rel="stylesheet" href="style.css"><script defer src="site.js"></script><style>canvas{background:radial-gradient(circle,#00111a,#03030a);display:block;margin:12px auto;border-radius:8px}</style></head><body>
+<header class="topbar"><div class="brand">Solar <span>Adventure</span></div></header>
+<main class="container"><h2>Orbit Fly</h2><p>Move with mouse. Avoid asteroids. Survive to gain score.</p>
+<canvas id="c" width="720" height="360"></canvas>
+<div style="margin-top:12px"><a class="btn ghost" href="games.html">Back</a></div>
+</main>
+<script>
+const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+let w=canvas.width, h=canvas.height, ship={x:w/4,y:h/2,r:10}, ast=[];
+let score=0, running=true;
+function spawn(){ ast.push({x:w+20,y:30+Math.random()*(h-60),r:8+Math.random()*18,dx:2+Math.random()*3}); }
+for(let i=0;i<4;i++) spawn();
+canvas.addEventListener('mousemove', e=>{ const rect=canvas.getBoundingClientRect(); ship.y = (e.clientY-rect.top); });
+function loop(){
+  ctx.clearRect(0,0,w,h);
+  // stars
+  for(let i=0;i<60;i++){ ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect((i*37)%w,(i*57)%h,1,1); }
+  // ship
+  ctx.fillStyle='#8ef'; ctx.beginPath(); ctx.moveTo(ship.x,ship.y); ctx.lineTo(ship.x-18,ship.y-8); ctx.lineTo(ship.x-18,ship.y+8); ctx.closePath(); ctx.fill();
+  // asteroids
+  for(let i=ast.length-1;i>=0;i--){
+    let a=ast[i]; a.x -= a.dx;
+    ctx.fillStyle='rgba(180,120,80,0.9)';
+    ctx.beginPath(); ctx.ellipse(a.x,a.y,a.r,a.r*0.8,0,0,Math.PI*2); ctx.fill();
+    if(a.x< -40) { ast.splice(i,1); spawn(); score++; }
+    // collision
+    const dx = a.x - ship.x, dy = a.y - ship.y, dist = Math.sqrt(dx*dx+dy*dy);
+    if(dist < a.r + ship.r){ running=false; endGame(); return; }
+  }
+  // HUD
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fillText('Score: '+score,10,20);
+  if(running) requestAnimationFrame(loop);
+}
+function endGame(){ const name = prompt('Name for leaderboard','Player')||'Player'; window.Leaderboard.saveScore('orbit', name, score); alert('Crashed! Score: '+score); }
+loop();
+</script></body></html>
